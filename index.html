@@ -1298,11 +1298,11 @@ section { padding: 100px 0; position: relative; z-index: 2; }
              Добавляйте/удаляйте блоки <div class="city">...
         ============================================================ -->
         <div class="cities__list">
-          <div class="city">Оренбург <span class="dot">:</span></div>
-          <div class="city">Стерлитамак <span class="dot">:</span></div>
-          <div class="city">Кировск <span class="dot">:</span></div>
-          <div class="city">Новосибирск <span class="dot">:</span></div>
-          <div class="city">Санкт-Петербург <span class="dot">:</span></div>
+          <div class="city"><span class="dot">:</span> Оренбург</div>
+          <div class="city"><span class="dot">:</span> Стерлитамак</div>
+          <div class="city"><span class="dot">:</span> Кировск</div>
+          <div class="city"><span class="dot">:</span> Новосибирск</div>
+          <div class="city"><span class="dot">:</span> Санкт-Петербург</div>
         </div>
         <p class="cities__edit">* Список городов может изменится. Стоимость билета на показ — 600 ₽.</p>
       </div>
@@ -1314,7 +1314,7 @@ section { padding: 100px 0; position: relative; z-index: 2; }
         <h3>Хотите показать фестиваль<br/>в своём кинотеатре?</h3>
         <p>Присоединяйтесь к фестивалю ТОКЕН: ФИЛЬМ. Мы предоставляем все материалы для проведения показов и продвижения.</p>
       </div>
-      <a href="mailto:hello@token-film.ru?subject=Кинотеатр-партнёр%20фестиваля%20ТОКЕН%3A%20ФИЛЬМ" class="btn btn--primary">Стать кинотеатром-партнёром</a>
+      <a href="https://t.me/tokenfilm_bot" target="_blank" rel="noopener" class="btn btn--primary">Написать нам в Telegram</a>
     </div>
   </div>
 </section>
@@ -1350,7 +1350,7 @@ section { padding: 100px 0; position: relative; z-index: 2; }
         <h3>Стать партнёром<br/>фестиваля</h3>
         <p>Поддержите фестиваль ТОКЕН: ФИЛЬМ и новое сообщество, которое формируется на стыке кино и технологий. Ваш бренд будет заметен на всех площадках, в коммуникациях с участниками и в материалах для прессы.</p>
       </div>
-      <a href="mailto:partners@token-film.ru?subject=Партнёрство%20ТОКЕН%3A%20ФИЛЬМ" class="btn btn--primary">Стать партнёром</a>
+      <a href="https://t.me/tokenfilm_bot" target="_blank" rel="noopener" class="btn btn--primary">Написать нам в Telegram</a>
     </div>
   </div>
 </section>
@@ -1661,35 +1661,7 @@ window.addEventListener('scroll', () => {
 });
 
 /* ============================================================
-   КУКИ-БАННЕР
-============================================================ */
-(function() {
-  if (!localStorage.getItem('cookie_consent')) {
-    setTimeout(() => {
-      const banner = document.getElementById('cookieBanner');
-      if (banner) banner.classList.add('show');
-    }, 800);
-  }
-  const accept = document.getElementById('cookieAccept');
-  const decline = document.getElementById('cookieDecline');
-  const banner = document.getElementById('cookieBanner');
-  if (accept) accept.addEventListener('click', () => {
-    localStorage.setItem('cookie_consent', 'accepted');
-    banner.classList.remove('show');
-  });
-  if (decline) decline.addEventListener('click', () => {
-    localStorage.setItem('cookie_consent', 'declined');
-    banner.classList.remove('show');
-  });
-  const cpLink = document.getElementById('cookiePrivacyLink');
-  if (cpLink) cpLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    openModal('modalPrivacy');
-  });
-})();
-
-/* ============================================================
-   УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ОТКРЫТИЯ/ЗАКРЫТИЯ МОДАЛОК
+   УНИВЕРСАЛЬНЫЕ ФУНКЦИИ МОДАЛОК
 ============================================================ */
 function openModal(id) {
   const m = document.getElementById(id);
@@ -1701,35 +1673,46 @@ function closeAllModals() {
 }
 
 /* ============================================================
-   МОДАЛКА — ПОЛОЖЕНИЕ
+   КУКИ-БАННЕР
 ============================================================ */
-const modal = document.getElementById('modal');
-const openBtns = [document.getElementById('openModal'), document.getElementById('openModal2'), document.getElementById('openModalHero')];
-openBtns.forEach(b => b && b.addEventListener('click', (e) => {
-  e.preventDefault();
-  openModal('modal');
-}));
-document.getElementById('closeModal').addEventListener('click', closeAllModals);
-
-/* ============================================================
-   МОДАЛКА — ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ
-============================================================ */
-document.getElementById('openPrivacy').addEventListener('click', (e) => {
+if (!localStorage.getItem('cookie_consent')) {
+  setTimeout(() => {
+    const banner = document.getElementById('cookieBanner');
+    if (banner) banner.classList.add('show');
+  }, 800);
+}
+document.getElementById('cookieAccept').addEventListener('click', () => {
+  localStorage.setItem('cookie_consent', 'accepted');
+  document.getElementById('cookieBanner').classList.remove('show');
+});
+document.getElementById('cookieDecline').addEventListener('click', () => {
+  localStorage.setItem('cookie_consent', 'declined');
+  document.getElementById('cookieBanner').classList.remove('show');
+});
+document.getElementById('cookiePrivacyLink').addEventListener('click', (e) => {
   e.preventDefault();
   openModal('modalPrivacy');
 });
-document.getElementById('closeModalPrivacy').addEventListener('click', closeAllModals);
 
 /* ============================================================
-   МОДАЛКА — СОГЛАСИЕ НА ОБРАБОТКУ ПД
+   МОДАЛКИ — ОТКРЫТИЕ
 ============================================================ */
-document.getElementById('openConsent').addEventListener('click', (e) => {
-  e.preventDefault();
-  openModal('modalConsent');
-});
-document.getElementById('closeModalConsent').addEventListener('click', closeAllModals);
+// Положение
+[document.getElementById('openModal'), document.getElementById('openModal2'), document.getElementById('openModalHero')]
+  .forEach(b => b && b.addEventListener('click', (e) => { e.preventDefault(); openModal('modal'); }));
 
-/* Закрытие всех модалок по клику на фон и Escape */
+// Политика конфиденциальности
+document.getElementById('openPrivacy').addEventListener('click', (e) => { e.preventDefault(); openModal('modalPrivacy'); });
+
+// Согласие на обработку ПД
+document.getElementById('openConsent').addEventListener('click', (e) => { e.preventDefault(); openModal('modalConsent'); });
+
+/* ============================================================
+   МОДАЛКИ — ЗАКРЫТИЕ (крестик, фон, Escape)
+============================================================ */
+document.querySelectorAll('.modal__close').forEach(btn => {
+  btn.addEventListener('click', closeAllModals);
+});
 document.querySelectorAll('.modal').forEach(m => {
   m.addEventListener('click', (e) => { if (e.target === m) closeAllModals(); });
 });
@@ -1739,12 +1722,9 @@ document.addEventListener('keydown', (e) => {
 
 /* ============================================================
    ОТПРАВКА ФОРМЫ ЗАЯВКИ → TELEGRAM
-   ──────────────────────────────────────────────────────────
    Замените TELEGRAM_ENDPOINT на URL вашего бэкенд-прокси.
-   Пример минимального прокси на Node/Express — в комментарии
-   ниже в оригинальном коде.
 ============================================================ */
-const TELEGRAM_ENDPOINT = '/api/apply';  // ← ЗАМЕНИТЕ НА ВАШ URL
+const TELEGRAM_ENDPOINT = '/api/apply';
 
 const form = document.getElementById('applyForm');
 const status = document.getElementById('formStatus');
