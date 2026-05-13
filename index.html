@@ -1314,7 +1314,7 @@ section { padding: 100px 0; position: relative; z-index: 2; }
         <h3>Хотите показать фестиваль<br/>в своём кинотеатре?</h3>
         <p>Присоединяйтесь к фестивалю ТОКЕН: ФИЛЬМ. Мы предоставляем все материалы для проведения показов и продвижения.</p>
       </div>
-      <a href="https://t.me/tokenfilm_bot" target="_blank" rel="noopener" class="btn btn--primary">Написать нам в Telegram</a>
+      <a href="#" id="openContacts" class="btn btn--primary">Связаться с нами</a>
     </div>
   </div>
 </section>
@@ -1350,7 +1350,7 @@ section { padding: 100px 0; position: relative; z-index: 2; }
         <h3>Стать партнёром<br/>фестиваля</h3>
         <p>Поддержите фестиваль ТОКЕН: ФИЛЬМ и новое сообщество, которое формируется на стыке кино и технологий. Ваш бренд будет заметен на всех площадках, в коммуникациях с участниками и в материалах для прессы.</p>
       </div>
-      <a href="https://t.me/tokenfilm_bot" target="_blank" rel="noopener" class="btn btn--primary">Написать нам в Telegram</a>
+      <a href="#" id="openContacts2" class="btn btn--primary">Связаться с нами</a>
     </div>
   </div>
 </section>
@@ -1636,139 +1636,9 @@ section { padding: 100px 0; position: relative; z-index: 2; }
   </div>
 </div>
 
-<!-- =================================================================
-     SCRIPTS
-================================================================= -->
-<script>
-/* ============================================================
-   FADE-UP ON SCROLL
-============================================================ */
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.12 });
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-/* ============================================================
-   NAV: автоскрытие при скролле вниз
-============================================================ */
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('nav');
-  const cur = window.scrollY;
-  if (cur > 100 && cur > lastScroll) nav.style.transform = 'translateY(-100%)';
-  else nav.style.transform = 'translateY(0)';
-  lastScroll = cur;
-});
 
-/* ============================================================
-   УНИВЕРСАЛЬНЫЕ ФУНКЦИИ МОДАЛОК
-============================================================ */
-function openModal(id) {
-  const m = document.getElementById(id);
-  if (m) { m.classList.add('open'); document.body.style.overflow = 'hidden'; }
-}
-function closeAllModals() {
-  document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
-  document.body.style.overflow = '';
-}
 
-/* ============================================================
-   КУКИ-БАННЕР
-============================================================ */
-if (!localStorage.getItem('cookie_consent')) {
-  setTimeout(() => {
-    const banner = document.getElementById('cookieBanner');
-    if (banner) banner.classList.add('show');
-  }, 800);
-}
-document.getElementById('cookieAccept').addEventListener('click', () => {
-  localStorage.setItem('cookie_consent', 'accepted');
-  document.getElementById('cookieBanner').classList.remove('show');
-});
-document.getElementById('cookieDecline').addEventListener('click', () => {
-  localStorage.setItem('cookie_consent', 'declined');
-  document.getElementById('cookieBanner').classList.remove('show');
-});
-document.getElementById('cookiePrivacyLink').addEventListener('click', (e) => {
-  e.preventDefault();
-  openModal('modalPrivacy');
-});
-
-/* ============================================================
-   МОДАЛКИ — ОТКРЫТИЕ
-============================================================ */
-// Положение
-[document.getElementById('openModal'), document.getElementById('openModal2'), document.getElementById('openModalHero')]
-  .forEach(b => b && b.addEventListener('click', (e) => { e.preventDefault(); openModal('modal'); }));
-
-// Политика конфиденциальности
-document.getElementById('openPrivacy').addEventListener('click', (e) => { e.preventDefault(); openModal('modalPrivacy'); });
-
-// Согласие на обработку ПД
-document.getElementById('openConsent').addEventListener('click', (e) => { e.preventDefault(); openModal('modalConsent'); });
-
-/* ============================================================
-   МОДАЛКИ — ЗАКРЫТИЕ (крестик, фон, Escape)
-============================================================ */
-document.querySelectorAll('.modal__close').forEach(btn => {
-  btn.addEventListener('click', closeAllModals);
-});
-document.querySelectorAll('.modal').forEach(m => {
-  m.addEventListener('click', (e) => { if (e.target === m) closeAllModals(); });
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeAllModals();
-});
-
-/* ============================================================
-   ОТПРАВКА ФОРМЫ ЗАЯВКИ → TELEGRAM
-   Замените TELEGRAM_ENDPOINT на URL вашего бэкенд-прокси.
-============================================================ */
-const TELEGRAM_ENDPOINT = '/api/apply';
-
-const form = document.getElementById('applyForm');
-const status = document.getElementById('formStatus');
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  status.className = 'form__status';
-  status.textContent = '';
-
-  if (!form.checkValidity()) {
-    status.classList.add('err');
-    status.textContent = 'Пожалуйста, заполните обязательные поля и примите все соглашения.';
-    form.reportValidity();
-    return;
-  }
-
-  const submitBtn = form.querySelector('.form__submit');
-  submitBtn.disabled = true;
-  const originalText = submitBtn.textContent;
-  submitBtn.textContent = 'Отправляем...';
-
-  const data = Object.fromEntries(new FormData(form).entries());
-  data._source = 'token-film.ru';
-  data._timestamp = new Date().toISOString();
-
-  try {
-    const res = await fetch(TELEGRAM_ENDPOINT, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    status.classList.add('ok');
-    status.textContent = '✓ Ваша заявка принята, ожидайте письмо на указанную почту.';
-    form.reset();
-  } catch (err) {
-    status.classList.add('err');
-    status.textContent = '✕ Ошибка отправки. Напишите нам на pop@premierzal.ru — мы примем заявку вручную.';
-    console.error(err);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalText;
-  }
-});
-</script>
 
 
 <!-- =================================================================
@@ -1785,28 +1655,143 @@ form.addEventListener('submit', async (e) => {
 </div>
 
 <!-- =================================================================
+     МОДАЛКА — ПОЛОЖЕНИЕ О ФЕСТИВАЛЕ
+================================================================= -->
+<div class="modal" id="modal" role="dialog" aria-labelledby="modalTitle">
+  <div class="modal__inner">
+    <button class="modal__close" aria-label="Закрыть">✕</button>
+    <div class="modal__doc">
+      <div class="modal__eyebrow">Положение о фестивале</div>
+      <h3 id="modalTitle">ТОКЕН: ФИЛЬМ</h3>
+      <p class="modal__intro">Фестиваль фильмов, созданных с использованием технологий искусственного интеллекта.</p>
+      <h4>1. Общие положения</h4>
+      <p>ТОКЕН: ФИЛЬМ — ежегодный фестиваль фильмов, созданных с использованием технологий искусственного интеллекта. Первое проведение — 3–4 июля 2026 года, Екатеринбург.</p>
+      <p>Фестиваль проходит в очном формате: показы для зрителей — 3 июля 2026 г., церемония награждения — 4 июля 2026 г. в кинотеатре «Премьер Зал» (ТРЦ Парк Хаус, г. Екатеринбург, ул. Сулимова, д. 50).</p>
+      <p>Организатор фестиваля: Премьер Зал, ООО «Сеть кинотеатров «Премьер-зал».</p>
+      <p>Цели фестиваля:</p>
+      <ul>
+        <li>продвижение жанра кино, созданного с применением ИИ-инструментов (генерация видео, изображений, звука, сценария);</li>
+        <li>формирование сообщества на стыке кино и технологий;</li>
+        <li>демонстрация художественных и коммерческих возможностей ИИ широкой аудитории.</li>
+      </ul>
+      <h4>2. Условия участия</h4>
+      <p>К участию в конкурсе приглашаются авторы из России и стран Ближнего Зарубежья. Каждый участник вправе подать неограниченное количество заявок при условии отдельной оплаты за каждую.</p>
+      <p>Участником может выступать физическое лицо или компания. Студенты участвуют бесплатно при подтверждении статуса (справка учебного заведения или действующий студенческий билет).</p>
+      <p>Взнос за участие:</p>
+      <ul>
+        <li>990 руб. — для физических лиц и компаний;</li>
+        <li>бесплатно — для студентов при подтверждении статуса.</li>
+      </ul>
+      <p>Оплата производится после приёма и проверки заявки. Организатор направляет участнику ссылку на оплату в соответствии с его статусом. Заявка считается принятой после поступления оплаты.</p>
+      <h4>3. Требования к работам</h4>
+      <p>К участию принимаются видеоработы, отвечающие следующим требованиям:</p>
+      <ul>
+        <li>длительность — от 1 до 30 минут;</li>
+        <li>год создания — не ранее 2025 г.;</li>
+        <li>обязательное использование как минимум одного ИИ-инструмента в производстве;</li>
+        <li>язык — русский; допускаются русский дубляж и субтитры на русском языке;</li>
+        <li>формат файла: MP4 / MOV, разрешение не ниже 1920 × 1080;</li>
+        <li>к работе прилагается описание применённых ИИ-инструментов (обязательно, до 500 слов);</li>
+        <li>права на показ принадлежат автору или официально делегированы.</li>
+      </ul>
+      <p>К участию в фестивале не допускаются фильмы, содержащие:</p>
+      <ul>
+        <li>сцены насилия, жестокого обращения с людьми или животными, в том числе в художественной форме;</li>
+        <li>пропаганду, демонстрацию или романтизацию наркотиков, психотропных веществ, алкоголя и табака;</li>
+        <li>расовую, национальную, религиозную или иную дискриминацию и разжигание ненависти;</li>
+        <li>материалы сексуального или порнографического характера, в том числе в скрытой форме;</li>
+        <li>экстремистские, террористические или радикально-политические идеи и символику;</li>
+        <li>пропаганду суицида, самоповреждения или причинения вреда здоровью;</li>
+        <li>дискредитацию государственных институтов, правоохранительных органов, вооружённых сил;</li>
+        <li>контент, унижающий человеческое достоинство: нецензурную брань, издевательства, стигматизацию;</li>
+        <li>использование реальных образов несовершеннолетних без письменного согласия законных представителей;</li>
+        <li>нарушение авторских прав: использование защищённых материалов без лицензии или разрешения правообладателей;</li>
+        <li>заведомо ложную информацию о применении ИИ, дезинформацию, фейки;</li>
+        <li>дипфейки: использование технологий подмены или синтеза внешности реальных людей без их письменного согласия;</li>
+        <li>нарушение права на изображение физических лиц: несанкционированное использование фото, видео или ИИ-генерации с узнаваемым образом реального человека;</li>
+        <li>рекламу товаров и услуг, замаскированную под художественный контент.</li>
+      </ul>
+      <p><em>Организаторы оставляют за собой право отклонить любую заявку без объяснения причин, в том числе в случае нарушения вышеуказанных требований.</em></p>
+      <h4>4. Порядок подачи заявок</h4>
+      <p>Приём заявок проходит в два этапа.</p>
+      <p><strong>Этап 1.</strong> Первичная заявка на сайте — с 1 по 15 июня 2026 г. На этом этапе фильм может быть ещё в работе.</p>
+      <p><strong>Этап 2.</strong> Подача материалов — не позднее 16 июня 2026 г. Участник направляет куратору фестиваля:</p>
+      <ul>
+        <li>ссылку на фильм (Vimeo / Google Drive / другое облако) с паролем доступа;</li>
+        <li>постер фильма (формат 16:9, высокое разрешение);</li>
+        <li>кадры из фильма (не менее 5, высокое разрешение);</li>
+        <li>биографию режиссёра / команды (до 300 слов);</li>
+        <li>синопсис фильма (до 150 слов);</li>
+        <li>описание ИИ-инструментов (обязательно, до 500 слов).</li>
+      </ul>
+      <p>При заполнении заявки на сайте автор подтверждает, что:</p>
+      <ul>
+        <li>является автором фильма или обладает официально делегированными правами на его показ;</li>
+        <li>музыкальные материалы используются на законных основаниях (лицензия, royalty-free или собственное создание);</li>
+        <li>визуальные материалы не нарушают авторские права третьих лиц;</li>
+        <li>ИИ-контент создан законным способом, без использования запрещённых или незаконно полученных данных;</li>
+        <li>даёт согласие на показ фильма в рамках фестиваля ТОКЕН: ФИЛЬМ.</li>
+      </ul>
+      <p><em>В случае претензий третьих лиц автор обязуется урегулировать их самостоятельно и за свой счёт, без привлечения организаторов фестиваля.</em></p>
+      <h4>5. Этапы фестиваля и сроки</h4>
+      <ul>
+        <li>Открытие приёма заявок на сайте — 1 июня 2026</li>
+        <li>Закрытие формы заявок — 15 июня 2026</li>
+        <li>Дедлайн подачи материалов — 16 июня 2026</li>
+        <li>Программный отбор — 17 июня 2026</li>
+        <li>Уведомление участников о результатах отбора и передача фильмов жюри — 18 июня 2026</li>
+        <li>Голосование жюри и онлайн-голосование зрителей — 19–23 июня 2026</li>
+        <li>Очные показы для зрителей в кинотеатрах — 3 июля 2026</li>
+        <li>Финальный показ и церемония награждения — 4 июля 2026</li>
+      </ul>
+      <p><em>Оргкомитет вправе вносить изменения в даты проведения фестиваля. Актуальная информация публикуется на официальном сайте.</em></p>
+      <h4>6. Номинации и награды</h4>
+      <p>Конкурсная программа включает следующие номинации:</p>
+      <ul>
+        <li>Главный фильм фестиваля — главный приз 100 000 руб.;</li>
+        <li>Лучшая идея и режиссура;</li>
+        <li>Лучшее использование ИИ;</li>
+        <li>Лучшая визуальная эстетика;</li>
+        <li>Лучшее техническое исполнение;</li>
+        <li>Лучшее эмоциональное воздействие;</li>
+        <li>Приз зрительских симпатий;</li>
+        <li>Именная номинация генерального партнёра (победителя определяет партнёр).</li>
+      </ul>
+      <p>Остальные номинации награждаются ценными призами и подарками от партнёров фестиваля.</p>
+      <h4>7. Жюри фестиваля</h4>
+      <p>Жюри формируется из 5 специалистов: продюсер, режиссёр, сценарист, кинокритик, специалист по ИИ. Состав публикуется на сайте не позднее 25 мая 2026 г.</p>
+      <p>Принципы работы жюри:</p>
+      <ul>
+        <li>члены жюри оценивают работы независимо друг от друга по балльной системе;</li>
+        <li>член жюри не допускается к оценке работ, в создании которых он участвовал;</li>
+        <li>решения жюри окончательны и пересмотру не подлежат.</li>
+      </ul>
+      <h4>8. Принципы фестиваля</h4>
+      <p>Фестиваль придерживается принципа нейтральности: политические темы и конфликты не являются предметом обсуждения. Фокус фестиваля — искусство и инновации.</p>
+      <p>Фестиваль ТОКЕН: ФИЛЬМ вправе использовать поданные работы, а также имя автора и его контактные данные в целях продвижения фестиваля.</p>
+      <h4>9. Заключительные положения</h4>
+      <p>Участие в фестивале подразумевает полное согласие с настоящим Положением.</p>
+      <p>Организаторы оставляют за собой право вносить изменения в Положение до завершения приёма заявок. Актуальная редакция публикуется на официальном сайте фестиваля.</p>
+      <p>По всем вопросам следует обращаться к команде фестиваля через официальные каналы связи, указанные на сайте.</p>
+      <div class="modal__sig">ТОКЕН: ФИЛЬМ · токен-фильм.рф · 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================================
      МОДАЛКА — ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ
 ================================================================= -->
 <div class="modal" id="modalPrivacy" role="dialog" aria-labelledby="modalPrivacyTitle">
   <div class="modal__inner">
-    <button class="modal__close" id="closeModalPrivacy" aria-label="Закрыть">✕</button>
+    <button class="modal__close" aria-label="Закрыть">✕</button>
     <div class="modal__doc">
       <div class="modal__eyebrow">Документ</div>
       <h3 id="modalPrivacyTitle">Политика конфиденциальности</h3>
       <p class="modal__intro">ООО «Сеть кинотеатров – Премьер – Зал»</p>
-
-      <p>Настоящая политика конфиденциальности составлена в соответствии с требованиями Федерального закона от 27.07.2006 г. № 152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «Сеть кинотеатров – Премьер – Зал» (далее — Оператор).</p>
-
+      <p>Настоящая политика конфиденциальности составлена в соответствии с требованиями Федерального закона от 27.07.2006 г. № 152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных, предпринимаемые ООО «Сеть кинотеатров – Премьер – Зал» (далее — Оператор).</p>
       <h4>1. Общие положения</h4>
-      <p>Настоящая политика Оператора (далее — Политика) применяется ко всей информации, которую Оператор может получить о посетителях веб-сайта https://tokenfilm.ru/.</p>
-
-      <h4>2. Основные понятия</h4>
-      <p>2.1. <strong>Автоматизированная обработка</strong> — обработка персональных данных с помощью средств вычислительной техники.</p>
-      <p>2.7. <strong>Персональные данные</strong> — любая информация, относящаяся прямо или косвенно к определённому Пользователю веб-сайта https://tokenfilm.ru/.</p>
-      <p>2.9. <strong>Пользователь</strong> — любой посетитель веб-сайта https://tokenfilm.ru/.</p>
-
+      <p>Настоящая политика применяется ко всей информации, которую Оператор может получить о посетителях веб-сайта https://tokenfilm.ru/.</p>
       <h4>6. Цели обработки персональных данных</h4>
-      <p>6.1. Цели обработки:</p>
       <ul>
         <li>приём заявок на участие в фестивале ТОКЕН: ФИЛЬМ, направление уведомлений, ответы на запросы участников;</li>
         <li>направление информации о мероприятиях, новостях и результатах фестиваля;</li>
@@ -1814,15 +1799,11 @@ form.addEventListener('submit', async (e) => {
         <li>идентификация пользователей Сайта;</li>
         <li>исполнение требований законодательства РФ.</li>
       </ul>
-      <p>6.2. Перечень обрабатываемых персональных данных: фамилия, имя, отчество; номер телефона; электронная почта; название и описание фильма, биография режиссёра и иные сведения, добровольно предоставляемые при подаче заявки.</p>
-
+      <p>Перечень обрабатываемых данных: фамилия, имя, отчество; номер телефона; электронная почта; название и описание фильма, биография режиссёра и иные сведения, добровольно предоставляемые при подаче заявки.</p>
       <h4>8. Порядок сбора и хранения</h4>
-      <p>8.3. В случае выявления неточностей в персональных данных Пользователь может актуализировать их, направив уведомление на адрес <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a> с пометкой «Актуализация персональных данных».</p>
-      <p>8.4. Пользователь может в любой момент отозвать своё согласие на обработку персональных данных, направив уведомление по электронной почте <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a> с пометкой «Отзыв согласия на обработку персональных данных».</p>
-
+      <p>Пользователь может в любой момент отозвать своё согласие на обработку персональных данных, направив уведомление по электронной почте <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a> с пометкой «Отзыв согласия на обработку персональных данных».</p>
       <h4>11. Заключительные положения</h4>
-      <p>11.1. По вопросам обработки персональных данных обращайтесь на <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a>.</p>
-      <p>11.3. Актуальная версия Политики доступна по адресу https://tokenfilm.ru/.</p>
+      <p>По вопросам обработки персональных данных обращайтесь на <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a>. Актуальная версия Политики доступна по адресу https://tokenfilm.ru/.</p>
       <div class="modal__sig">ТОКЕН: ФИЛЬМ · 2026</div>
     </div>
   </div>
@@ -1833,22 +1814,19 @@ form.addEventListener('submit', async (e) => {
 ================================================================= -->
 <div class="modal" id="modalConsent" role="dialog" aria-labelledby="modalConsentTitle">
   <div class="modal__inner">
-    <button class="modal__close" id="closeModalConsent" aria-label="Закрыть">✕</button>
+    <button class="modal__close" aria-label="Закрыть">✕</button>
     <div class="modal__doc">
       <div class="modal__eyebrow">Документ</div>
       <h3 id="modalConsentTitle">Согласие на обработку персональных данных</h3>
       <p class="modal__intro">ООО «Сеть кинотеатров – Премьер – Зал»</p>
-
-      <p>1. Выражаю ООО «Сеть кинотеатров – Премьер – Зал» (620143, Свердловская область, г. Екатеринбург, проспект Космонавтов, стр. 41, офис 315, ИНН 6686020023, КПП 668601001, ОГРН 1126686023980) (далее — Оператор) своё согласие на автоматизированную и неавтоматизированную обработку моих персональных данных, переданных мною лично на сайте https://tokenfilm.ru/.</p>
-
+      <p>Выражаю ООО «Сеть кинотеатров – Премьер – Зал» (620143, Свердловская область, г. Екатеринбург, проспект Космонавтов, стр. 41, офис 315, ИНН 6686020023, КПП 668601001, ОГРН 1126686023980) своё согласие на автоматизированную и неавтоматизированную обработку моих персональных данных, переданных мною лично на сайте https://tokenfilm.ru/.</p>
       <h4>Перечень персональных данных</h4>
       <ul>
         <li>фамилия, имя, отчество;</li>
         <li>номер телефона;</li>
         <li>электронная почта;</li>
-        <li>название и описание фильма, биография режиссёра и иные сведения, добровольно предоставляемые при подаче заявки на участие в фестивале ТОКЕН: ФИЛЬМ.</li>
+        <li>название и описание фильма, биография режиссёра и иные сведения, добровольно предоставляемые при подаче заявки.</li>
       </ul>
-
       <h4>Цели обработки</h4>
       <ul>
         <li>приём и обработка заявки на участие в фестивале ТОКЕН: ФИЛЬМ;</li>
@@ -1856,15 +1834,179 @@ form.addEventListener('submit', async (e) => {
         <li>идентификация пользователей Сайта;</li>
         <li>исполнение требований законодательства РФ.</li>
       </ul>
-
-      <p>2. Оператор может обрабатывать мои персональные данные бессрочно. Обработка осуществляется в соответствии с требованиями Федерального закона от 27.07.2006 г. № 152-ФЗ «О персональных данных».</p>
-      <p>5. Настоящее согласие вступает в силу с момента перехода на Сайт и действует до дня отзыва в письменной форме.</p>
-      <p>6. Направление уведомления об отзыве согласия влечёт за собой прекращение участия в фестивале.</p>
-      <p>8. Настоящее согласие может быть отозвано письменным заявлением, направленным на электронную почту <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a>.</p>
+      <p>Оператор может обрабатывать персональные данные бессрочно в соответствии с Федеральным законом от 27.07.2006 г. № 152-ФЗ «О персональных данных».</p>
+      <p>Согласие вступает в силу с момента перехода на Сайт и действует до дня отзыва в письменной форме. Может быть отозвано заявлением на <a href="mailto:pop@premierzal.ru">pop@premierzal.ru</a>.</p>
       <div class="modal__sig">ТОКЕН: ФИЛЬМ · 2026</div>
     </div>
   </div>
 </div>
+
+<!-- =================================================================
+     МОДАЛКА — КОНТАКТЫ (партнёры / кинотеатры)
+================================================================= -->
+<div class="modal" id="modalContacts" role="dialog" aria-labelledby="modalContactsTitle">
+  <div class="modal__inner" style="max-width:520px;">
+    <button class="modal__close" aria-label="Закрыть">✕</button>
+    <div class="modal__doc">
+      <div class="modal__eyebrow">Связаться с нами</div>
+      <h3 id="modalContactsTitle">Партнёрство</h3>
+      <p class="modal__intro">По вопросам партнёрства и размещения показов обращайтесь к нашему менеджеру.</p>
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--graphite);margin-bottom:6px;">Менеджер</div>
+          <div style="font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;">Анна Самарина</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--graphite);margin-bottom:6px;">Телефон</div>
+          <a href="tel:+79226179167" style="font-size:18px;font-weight:700;color:var(--signal);text-decoration:none;">+7-922-617-91-67</a>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--graphite);margin-bottom:6px;">Электронная почта</div>
+          <a href="mailto:marketingb2b@premierzal.ru" style="font-size:16px;font-weight:700;color:var(--signal);text-decoration:none;">marketingb2b@premierzal.ru</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================================
+     SCRIPTS — в самом конце, после всех элементов DOM
+================================================================= -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  /* --------------------------------------------------
+     FADE-UP ON SCROLL
+  -------------------------------------------------- */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  /* --------------------------------------------------
+     NAV: скрытие при скролле вниз
+  -------------------------------------------------- */
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('nav');
+    const cur = window.scrollY;
+    nav.style.transform = (cur > 100 && cur > lastScroll) ? 'translateY(-100%)' : 'translateY(0)';
+    lastScroll = cur;
+  });
+
+  /* --------------------------------------------------
+     МОДАЛКИ — открытие / закрытие
+  -------------------------------------------------- */
+  function openModal(id) {
+    const m = document.getElementById(id);
+    if (m) { m.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  }
+  function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+    document.body.style.overflow = '';
+  }
+
+  // Крестики — все кнопки .modal__close
+  document.querySelectorAll('.modal__close').forEach(btn => {
+    btn.addEventListener('click', closeAllModals);
+  });
+  // Клик по тёмному фону
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) closeAllModals(); });
+  });
+  // Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+
+  // Положение
+  ['openModal','openModal2','openModalHero'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', e => { e.preventDefault(); openModal('modal'); });
+  });
+
+  // Политика конфиденциальности
+  const elPrivacy = document.getElementById('openPrivacy');
+  if (elPrivacy) elPrivacy.addEventListener('click', e => { e.preventDefault(); openModal('modalPrivacy'); });
+
+  // Согласие на обработку ПД
+  const elConsent = document.getElementById('openConsent');
+  if (elConsent) elConsent.addEventListener('click', e => { e.preventDefault(); openModal('modalConsent'); });
+
+  // Кнопки "Связаться с нами" (партнёры и кинотеатры)
+  ['openContacts','openContacts2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', e => { e.preventDefault(); openModal('modalContacts'); });
+  });
+
+  /* --------------------------------------------------
+     КУКИ-БАННЕР
+  -------------------------------------------------- */
+  if (!localStorage.getItem('cookie_consent')) {
+    setTimeout(() => {
+      const b = document.getElementById('cookieBanner');
+      if (b) b.classList.add('show');
+    }, 800);
+  }
+  document.getElementById('cookieAccept').addEventListener('click', () => {
+    localStorage.setItem('cookie_consent', 'accepted');
+    document.getElementById('cookieBanner').classList.remove('show');
+  });
+  document.getElementById('cookieDecline').addEventListener('click', () => {
+    localStorage.setItem('cookie_consent', 'declined');
+    document.getElementById('cookieBanner').classList.remove('show');
+  });
+  document.getElementById('cookiePrivacyLink').addEventListener('click', e => {
+    e.preventDefault(); openModal('modalPrivacy');
+  });
+
+  /* --------------------------------------------------
+     ФОРМА ЗАЯВКИ
+  -------------------------------------------------- */
+  const form = document.getElementById('applyForm');
+  const status = document.getElementById('formStatus');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.className = 'form__status';
+      status.textContent = '';
+
+      if (!form.checkValidity()) {
+        status.classList.add('err');
+        status.textContent = 'Пожалуйста, заполните обязательные поля и примите все соглашения.';
+        form.reportValidity();
+        return;
+      }
+
+      const submitBtn = form.querySelector('.form__submit');
+      submitBtn.disabled = true;
+      const orig = submitBtn.textContent;
+      submitBtn.textContent = 'Отправляем...';
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      data._timestamp = new Date().toISOString();
+
+      try {
+        const res = await fetch('/api/apply', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        status.classList.add('ok');
+        status.textContent = '✓ Ваша заявка принята! Ожидайте письмо на указанную почту.';
+        form.reset();
+      } catch (err) {
+        status.classList.add('err');
+        status.textContent = '✕ Ошибка отправки. Напишите нам на pop@premierzal.ru — мы примем заявку вручную.';
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = orig;
+      }
+    });
+  }
+
+}); // end DOMContentLoaded
+</script>
 
 </body>
 </html>
